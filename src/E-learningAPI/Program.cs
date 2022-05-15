@@ -1,16 +1,22 @@
+using E_learningAPI.Domain.Data;
 using MediatR;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using E_learningAPI.Extentions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+{
+    var services = builder.Services;
+    ConfigurationManager configuration = builder.Configuration;
 
-builder.Services.AddControllers();
-builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+    services.AddControllers();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    services.AddDataExtension(configuration.GetConnectionString("DefaultConnection"));
+    services.AddLibraryExtension();
+    services.AddAuthExtension(configuration);
+}
 
 var app = builder.Build();
 
@@ -22,6 +28,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+
+app.UseCors("MyPolicy");
 
 app.UseAuthorization();
 
